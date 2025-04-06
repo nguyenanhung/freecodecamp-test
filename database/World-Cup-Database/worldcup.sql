@@ -1,5 +1,4 @@
-CREATE
-DATABASE worldcup;
+CREATE DATABASE worldcup;
 
 -- Connect to the database (for psql CLI)
 -- \c worldcup
