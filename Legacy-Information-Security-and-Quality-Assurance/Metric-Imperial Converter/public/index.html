@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Metric-Imperial Converter</title>
+    <link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+<h1>Metric-Imperial Converter</h1>
+<form id="convert-form">
+    <input type="text" id="convert-input" placeholder="Enter value and unit (e.g., 10kg)">
+    <button type="submit">Convert</button>
+</form>
+<div id="result"></div>
+
+<script>
+    document.getElementById('convert-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('convert-input').value;
+
+        try {
+            const response = await fetch(`/api/convert?input=${encodeURIComponent(input)}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (typeof data === 'string') {
+                document.getElementById('result').textContent = data;
+            } else if (data.string) {
+                document.getElementById('result').textContent = data.string;
+            } else {
+                document.getElementById('result').textContent = 'Unexpected response format';
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            document.getElementById('result').textContent = `Error: ${error.message}`;
+        }
+    });
+</script>
+</body>
+</html>
