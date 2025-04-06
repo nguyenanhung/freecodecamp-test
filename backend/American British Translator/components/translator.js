@@ -24,11 +24,11 @@ class Translator {
         // Full title mappings
         const fullTitlesToAbbr = {
             'doctor': { 'american-to-british': 'Dr', 'british-to-american': 'Dr.' },
-            'mister': { 'american-to-british': 'mr', 'british-to-american': 'mr.' },
-            'missus': { 'american-to-british': 'mrs', 'british-to-american': 'mrs.' },
-            'miss': { 'american-to-british': 'ms', 'british-to-american': 'ms.' },
-            'mixter': { 'american-to-british': 'mx', 'british-to-american': 'mx.' },
-            'professor': { 'american-to-british': 'prof', 'british-to-american': 'prof.' }
+            'mister': { 'american-to-british': 'Mr', 'british-to-american': 'Mr.' },
+            'missus': { 'american-to-british': 'Mrs', 'british-to-american': 'Mrs.' },
+            'miss': { 'american-to-british': 'Ms', 'british-to-american': 'Ms.' },
+            'mixter': { 'american-to-british': 'Mx', 'british-to-american': 'Mx.' },
+            'professor': { 'american-to-british': 'Prof', 'british-to-american': 'Prof.' }
         };
 
         // Handle full titles
@@ -48,13 +48,15 @@ class Translator {
         // Handle abbreviated titles from dictionaries
         const titles = locale === 'american-to-british' ? americanToBritishTitles : britishToAmericanTitles;
         for (const [from, to] of Object.entries(titles)) {
-            const escapedFrom = from.replace('.', '\\.');
-            const regex = new RegExp(`\\b${escapedFrom}\\b(?=\\s|$)`, 'gi');
+            // Match both "Dr" and "Dr." for American-to-British
+            const regex = locale === 'american-to-british' ?
+                new RegExp(`\\b${from.replace('.', '\\.?')}\\b(?=\\s|$)`, 'gi') :
+                new RegExp(`\\b${from}\\b(?=\\s|$)`, 'gi');
             if (regex.test(translated)) {
                 translated = translated.replace(regex, match => {
-                    const newTitle = match.toLowerCase() === from ? to :
-                        to.charAt(0).toUpperCase() + to.slice(1);
-                    changes.push({ original: match, translated: newTitle });
+                    const newTitle = match.match(/^[A-Z]/) ?
+                        to.charAt(0).toUpperCase() + to.slice(1) : to;
+                    changes.push({ original: match, translated: newTitle }); // Always log
                     return `<span class="highlight">${newTitle}</span>`;
                 });
             }
